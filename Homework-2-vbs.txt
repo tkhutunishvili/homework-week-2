@@ -1,0 +1,89 @@
+Sub total_amount_by_year()
+
+Dim ws As Worksheet
+For Each ws In ActiveWorkbook.Worksheets
+ws.Activate
+
+LastRow = ws.Cells(Rows.Count, 1).End(xlUp).row
+
+'Head names
+Range("I1").Value = "Ticker"
+Range("L1").Value = "Total Stock Volume"
+Range("J1").Value = "Yearly Change"
+Range("K1").Value = "Pencent Change"
+
+
+'Variables
+Dim ticker As String
+Dim year_date As Double
+Dim open_p As Double
+Dim close_p As Double
+Dim low_p As Double
+Dim percent As Double
+Dim total_volume As Double
+
+
+total_volume = 0
+Dim row As Double
+row = 2
+Dim column As Integer
+column = 1
+Dim i As Double 'long
+
+'moderate
+open_p = Cells(2, column + 2).Value
+
+For i = 2 To LastRow
+    If Cells(i + 1, column).Value <> Cells(i, column).Value Then
+        ticker = Cells(i, column).Value
+        ws.Range("I" & row).Value = ticker
+        
+        'moderate
+        price_c = Cells(i, column + 5).Value
+        year_date = price_c - price_o
+        ws.Range("J" & row).Value = year_date
+        If (price_o = 0 And price_c = 0) Then
+            percent = 0
+        ElseIf (price_o = 0 And price_c <> 0) Then
+            percent = 1
+        Else
+            percent = year_date / price_o
+            ws.Range("K" & row).Value = percent
+            ws.Range("K" & row).Style = "Percent"
+        End If
+        
+        total_volume = total_volume + Cells(i, column + 6).Value
+        ws.Range("L" & row).Value = total_volume
+        
+       price_o = Cells(i + 1, column + 2)
+        row = row + 1
+        total_volume = 0
+    Else
+        total_volume = total_volume + Cells(i, column + 6).Value
+    End If
+    If ws.Range("J" & row).Value > 0 Then
+        ws.Range("J" & row).Interior.ColorIndex = 14
+    Else
+        ws.Range("J" & row).Interior.ColorIndex = 21
+    End If
+
+Next i
+'hard
+
+'Sheet1.Range("P1").Value = "Ticker"
+ws.Range("Q1").Value = "Value"
+ws.Range("O2").Value = "Greatest % increase"
+ws.Range("O3").Value = "Greatest % Decrease"
+ws.Range("O4").Value = "Greatest total volume"
+
+ws.Range("Q2").Style = "Percent"
+ws.Range("Q3").Style = "Percent"
+
+ws.Range("Q2").Value = Application.WorksheetFunction.Max(ws.Range("K:K"))
+ws.Range("Q3").Value = Application.WorksheetFunction.Min(ws.Range("K:K"))
+ws.Range("Q4").Value = Application.WorksheetFunction.Max(ws.Range("L:L"))
+
+Next ws
+
+End Sub
+
